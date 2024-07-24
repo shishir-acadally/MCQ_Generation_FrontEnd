@@ -38,11 +38,12 @@ export const getLUQuestions = (lu_id: string) => {
   return axios.post(url, requestBody).then(res => res.data);
 }
 
-export const generateQues = (lu_text: string, grade: string, subject: string, chapter: string) => {
+export const generateQues = (learning_unit: any, grade: string, subject: string, chapter: string) => {
   const url = `${Ques_API_URL}/generateQues`
-  console.log("Url for generating MCQs: ", url, lu_text);
+  console.log("Url for generating MCQs: ", url, learning_unit);
   const requestBody = {
-    "lu_text": lu_text,
+    "lu_ID": learning_unit.id,
+    "lu_text": learning_unit.name,
     "grade": grade,
     "subject": subject,
     "chapter": chapter
