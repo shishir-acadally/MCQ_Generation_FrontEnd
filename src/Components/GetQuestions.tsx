@@ -226,7 +226,19 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
     const generateQuestions = () => {
         //pass
         setLoading(true);
-        generateQues(lu, grade, subject, chapter).then(
+        let temp = "";
+        for(let l of lus){
+            if (l.id === lu){
+                temp = l.name
+                break
+            }
+            else{
+                console.log("==========Something wrong======");
+            }
+        }
+
+        console.log("LU name..............", temp);
+        generateQues(temp, grade, subject, chapter).then(
             data => {
                 setLoading(false);
                 console.log("Generated Ques ==============> ", data.data);
