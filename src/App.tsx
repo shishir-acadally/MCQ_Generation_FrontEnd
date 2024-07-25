@@ -106,6 +106,7 @@ const App: React.FC = () => {
           </nav>
         </div>
 
+        <div className="col-lg-12">
         {clickedOnView ? (
           <div>
             <ViewPage quest={chosenQues} onUpdateClickedOnView={handleChildUpdate2}></ViewPage>
@@ -125,6 +126,7 @@ const App: React.FC = () => {
           </div>
         )
         }
+        </div>
 
 
 

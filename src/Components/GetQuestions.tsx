@@ -28,7 +28,7 @@ interface Props {
     viewQue: { question: string; }[];
 
     onUpdateState: (newState: {
-        grade: string, subject: string, chapter: string, lu: string, bloom: string,  question: {
+        grade: string, subject: string, chapter: string, lu: string, bloom: string, question: {
             Blooms_Level: string;
             Question: string;
             Correct_Answer: string;
@@ -118,7 +118,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
 
                 // setQues([]);
                 // setviewQues([]);
-                onUpdateState({ grade, subject, chapter, lu, bloom,  question: questions, viewQue: viewQues });
+                onUpdateState({ grade, subject, chapter, lu, bloom, question: questions, viewQue: viewQues });
             })
             .catch(error => console.error('Error fetching subjects:', error));
     }, [grade]);
@@ -132,7 +132,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
 
                 // setQues([]);
                 // setviewQues([]);
-                onUpdateState({ grade, subject, chapter, lu, bloom,  question: questions, viewQue: viewQues });
+                onUpdateState({ grade, subject, chapter, lu, bloom, question: questions, viewQue: viewQues });
             })
             .catch(error => console.error('Error fetching chapters:', error));
     }, [subject]);
@@ -148,7 +148,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                 setLus(temp);
                 // setBlooms(["Remember", "Understand", "Apply", "Analyse"]);
 
-                if(questions.length === 0){handleSubmit();}
+                if (questions.length === 0) { handleSubmit(); }
                 // setQues([]);
                 // setviewQues([]);
                 onUpdateState({ grade, subject, chapter, lu, bloom, question: questions, viewQue: viewQues });
@@ -160,7 +160,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
     let luChanged: boolean = false;
     useEffect(() => { }, [lu]);
     useEffect(() => { }, [questions]);
-    useEffect(()=>{ console.log(blooms);}, [blooms]);
+    useEffect(() => { console.log(blooms); }, [blooms]);
     // useEffect(() => {  },[lus]);
 
     useEffect(() => {
@@ -208,14 +208,14 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
         const selectedBloom = event.target.value;
         console.log("Selected Blooms Level: ", selectedBloom);
         onUpdateState({ grade, subject, chapter, lu, bloom: selectedBloom, question: questions, viewQue: viewQues });
-        
+        setIsDisabled(false);
     };
 
     const handleSubmit = () => {
-        if(questions.length === 0 && isDisabled === false){
-        setLoading(true);
+        if (questions.length === 0 && isDisabled === false) {
+            setLoading(true);
         }
-        setTimeout(()=> {}, 2000);
+        setTimeout(() => { }, 2000);
         getLUQuestions(lu)
             .then((data: any) => {
                 console.log("Questions: ", data);
@@ -229,15 +229,17 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                 } else {
                     setQues(data.data);
                     onUpdateState({ grade, subject, chapter, lu, bloom, question: data.data, viewQue });
-                    let temp1 = [];
+                    let tempViewQUes = [];
+                    let tempQues = [];
                     for (let que_det of data.data) {
-                        if(que_det.Blooms_Level === bloom){
-                            temp1.push({ 'question': que_det.Question });
+                        if (que_det.Blooms_Level === bloom) {
+                            tempViewQUes.push({ 'question': que_det.Question });
+                            tempQues.push(que_det);
                         }
-                        
                     }
                     // temp1.push({ 'question': data.data[0].Question })
-                    setviewQues(temp1);
+                    setviewQues(tempViewQUes);
+                    setQues(tempQues);
                     onUpdateState({ grade, subject, chapter, lu, bloom, question, viewQue: viewQues });
                     console.log("Questions:", viewQues);
                 }
@@ -249,12 +251,12 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
         //pass
         setLoading(true);
         let selected_lu = {};
-        for(let l of lus){
-            if (l.id === lu){
+        for (let l of lus) {
+            if (l.id === lu) {
                 selected_lu = l
                 break
             }
-            else{
+            else {
                 console.log("==========Something wrong======");
             }
         }
@@ -265,20 +267,23 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                 setLoading(false);
                 console.log("Generated Ques ==============> ", data.data);
 
-                setQues(data.data);
+                // setQues(data.data);
                 onUpdateState({ grade, subject, chapter, lu, bloom, question: data.data, viewQue });
-                let temp1 = [];
+                let tempViewQUes = [];
+                let tempQues = [];
                 for (let que_det of data.data) {
-                    if(que_det.Blooms_Level === bloom){
-                        temp1.push({ 'question': que_det.Question });
+                    if (que_det.Blooms_Level === bloom) {
+                        tempViewQUes.push({ 'question': que_det.Question });
+                        tempQues.push(que_det);
                     }
                 }
                 // temp1.push({ 'question': data.data[0].Question })
-                setviewQues(temp1);
+                setviewQues(tempViewQUes);
+                setQues(tempQues);
                 onUpdateState({ grade, subject, chapter, lu, bloom, question, viewQue: viewQues });
                 console.log("Questions:", viewQues);
             }
-        ).catch( error => {
+        ).catch(error => {
             setLoading(false);
         })
 
@@ -295,10 +300,10 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
     };
 
     return (
-        <div className="row">
+        <div>
             <div className="col-md-12 mt-5">
                 <h2 className="text-center">
-                    Please select 
+                    Please select
                     <span className="fw-bold"> Grade</span>,
                     <span className="fw-bold"> Subject</span>,
                     <span className="fw-bold"> Chapter </span>, and
@@ -346,7 +351,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                             <option key={index} value={bloom}>{bloom}</option>
                         ))}
                     </select>
-                    
+
                 </div>
                 <div className="col-md-1"></div>
             </div>
@@ -378,10 +383,10 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                 </Modal>
             </div>
 
-            
+
 
             <div className="row mt-5 d-flex justify-content-center">
-                <div className="col-md-8 mb-2" style={{ backgroundColor: '#f9f9f9' }}>
+                <div className="col-md-10 mb-2" style={{ backgroundColor: '#f9f9f9' }}>
                     {viewQues.map((question, index) => (
                         <div className="row" key={index}>
                             <div className="col-md-12 my-2">
