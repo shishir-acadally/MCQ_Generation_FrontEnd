@@ -275,8 +275,8 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
             <div className="col-md-12 mt-5">
                 <h2 className="text-center">
                     Please select
-                    <span className="fw-bold"> Grade </span>,
-                    <span className="fw-bold">Subject </span>, and
+                    <span className="fw-bold"> Grade</span>,
+                    <span className="fw-bold"> Subject</span>, and
                     <span className="fw-bold"> Chapter </span>
                     to review generated MCQs
                 </h2>
