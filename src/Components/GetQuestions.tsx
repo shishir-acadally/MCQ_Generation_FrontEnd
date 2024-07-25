@@ -220,7 +220,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
             .then((data: any) => {
                 console.log("Questions: ", data);
                 setLoading(false);
-                if (data.data.length === 0 && lu != "") {
+                if (data.data.length === 0 && lu !== "") {
                     handleShow();
                     setIsGenerateDisabled(false);
                     setQues([]);
@@ -231,7 +231,10 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                     onUpdateState({ grade, subject, chapter, lu, bloom, question: data.data, viewQue });
                     let temp1 = [];
                     for (let que_det of data.data) {
-                        temp1.push({ 'question': que_det.Question });
+                        if(que_det.Blooms_Level === bloom){
+                            temp1.push({ 'question': que_det.Question });
+                        }
+                        
                     }
                     // temp1.push({ 'question': data.data[0].Question })
                     setviewQues(temp1);
@@ -266,7 +269,9 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                 onUpdateState({ grade, subject, chapter, lu, bloom, question: data.data, viewQue });
                 let temp1 = [];
                 for (let que_det of data.data) {
-                    temp1.push({ 'question': que_det.Question });
+                    if(que_det.Blooms_Level === bloom){
+                        temp1.push({ 'question': que_det.Question });
+                    }
                 }
                 // temp1.push({ 'question': data.data[0].Question })
                 setviewQues(temp1);
@@ -303,8 +308,8 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
             </div>
 
             <div className="row">
-                <div className="col-md-2"></div>
-                <div className="col-md-8 d-flex justify-content-center py-2 mt-4">
+                <div className="col-md-1"></div>
+                <div className="col-md-10 d-flex justify-content-center py-2 mt-4">
                     <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '150px' }} value={grade} onChange={fetchSubjects}>
                         <option value="" disabled >Pick a grade</option>
                         {grades.map((grade, index) => (
@@ -335,7 +340,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                         ))}
                     </select>
 
-                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '300px' }} value={bloom} onChange={setBloomLevel}>
+                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '250px' }} value={bloom} onChange={setBloomLevel}>
                         <option value="" disabled >Pick from the given Bloom's Levels</option>
                         {blooms.map((bloom, index) => (
                             <option key={index} value={bloom}>{bloom}</option>
@@ -343,7 +348,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, ques
                     </select>
                     
                 </div>
-                <div className="col-md-2"></div>
+                <div className="col-md-1"></div>
             </div>
 
             <div className="row d-flex justify-content-center mt-4">
