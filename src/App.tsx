@@ -16,6 +16,8 @@ const App: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [chapter, setChapter] = useState('');
   const [lu, setLU] = useState('');
+  const [bloom, setBloom] = useState('');
+  // const [blooms, setBlooms] = useState<string[]>(["Remember", "Understand", "Apply", "Analyse"]);
   const [question, setQuestion] = useState<
     {
       Blooms_Level: string;
@@ -46,6 +48,7 @@ const App: React.FC = () => {
     setSubject(newState.subject);
     setChapter(newState.chapter);
     setLU(newState.lu);
+    setBloom(newState.bloom);
     setQuestion(newState.question);
     setViewQue(newState.viewQue);
     console.log("In app page ...................", viewQue);
@@ -113,6 +116,7 @@ const App: React.FC = () => {
               subject={subject}
               chapter={chapter}
               lu={lu}
+              bloom={bloom}
               question={question}
               viewQue={viewQue}
               onUpdateState={handleChildUpdate}

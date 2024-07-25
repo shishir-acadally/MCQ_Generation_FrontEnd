@@ -12,6 +12,7 @@ interface Props {
     subject: string;
     chapter: string;
     lu: string;
+    bloom: string;
     question: {
         Blooms_Level: string;
         Question: string;
@@ -27,7 +28,7 @@ interface Props {
     viewQue: { question: string; }[];
 
     onUpdateState: (newState: {
-        grade: string, subject: string, chapter: string, lu: string, question: {
+        grade: string, subject: string, chapter: string, lu: string, bloom: string,  question: {
             Blooms_Level: string;
             Question: string;
             Correct_Answer: string;
@@ -58,7 +59,7 @@ interface Props {
 }
 
 
-const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, viewQue, onUpdateState, onUpdateClickedOnView }) => {
+const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, bloom, question, viewQue, onUpdateState, onUpdateClickedOnView }) => {
     const override: React.CSSProperties = {
         display: "block",
         margin: "0 auto",
@@ -77,6 +78,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
     const [subjects, setSubjects] = useState([]);
     const [chapters, setChapters] = useState([]);
     const [lus, setLus] = useState<{ id: string; name: string; }[]>([]);
+    const [blooms, setBlooms] = useState<string[]>(["Remember", "Understand", "Apply", "Analyse"]);
     const [viewQues, setviewQues] = useState<{ question: string; }[]>([]);
     const [questions, setQues] = useState<{
         Blooms_Level: string;
@@ -112,10 +114,11 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
             .then(data => {
                 console.log("Subjects: ", data);
                 setSubjects(data.subjects);
+                // setBlooms(["Remember", "Understand", "Apply", "Analyse"]);
 
                 // setQues([]);
                 // setviewQues([]);
-                onUpdateState({ grade, subject, chapter, lu, question: questions, viewQue: viewQues });
+                onUpdateState({ grade, subject, chapter, lu, bloom,  question: questions, viewQue: viewQues });
             })
             .catch(error => console.error('Error fetching subjects:', error));
     }, [grade]);
@@ -125,10 +128,11 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
             .then(data => {
                 console.log("Chapters: ", data);
                 setChapters(data.chapters);
+                // setBlooms(["Remember", "Understand", "Apply", "Analyse"]);
 
                 // setQues([]);
                 // setviewQues([]);
-                onUpdateState({ grade, subject, chapter, lu, question: questions, viewQue: viewQues });
+                onUpdateState({ grade, subject, chapter, lu, bloom,  question: questions, viewQue: viewQues });
             })
             .catch(error => console.error('Error fetching chapters:', error));
     }, [subject]);
@@ -142,18 +146,21 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
                     temp.push({ id: det.ID, name: det.Name });
                 }
                 setLus(temp);
+                // setBlooms(["Remember", "Understand", "Apply", "Analyse"]);
 
                 if(questions.length === 0){handleSubmit();}
                 // setQues([]);
                 // setviewQues([]);
-                onUpdateState({ grade, subject, chapter, lu, question: questions, viewQue: viewQues });
+                onUpdateState({ grade, subject, chapter, lu, bloom, question: questions, viewQue: viewQues });
                 console.log("LUs: ", data.learning_units);
             })
             .catch(error => console.error('Error fetching LUs:', error));
     }, [chapter]);
 
+    let luChanged: boolean = false;
     useEffect(() => { }, [lu]);
     useEffect(() => { }, [questions]);
+    useEffect(()=>{ console.log(blooms);}, [blooms]);
     // useEffect(() => {  },[lus]);
 
     useEffect(() => {
@@ -171,12 +178,12 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
 
     const fetchSubjects = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedGrade = event.target.value;
-        onUpdateState({ grade: selectedGrade, subject, chapter, lu, question, viewQue });
+        onUpdateState({ grade: selectedGrade, subject, chapter, lu, bloom, question, viewQue });
     };
 
     const fetchChapters = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedSubject = event.target.value;
-        onUpdateState({ grade, subject: selectedSubject, chapter, lu, question, viewQue });
+        onUpdateState({ grade, subject: selectedSubject, chapter, lu, bloom, question, viewQue });
     };
 
     const setLUID = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -185,38 +192,50 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
         // setQues([]);
         // setviewQues([]);
         console.log("final print .................");
-        onUpdateState({ grade, subject, chapter, lu: selectedLU, question: questions, viewQue: viewQues });
+        luChanged = true;
+        onUpdateState({ grade, subject, chapter, lu: selectedLU, bloom, question: questions, viewQue: viewQues });
+        // setBlooms(["Remember", "Understand", "Apply", "Analyse"]);
         // onUpdateState({ grade, subject, chapter, lu: selectedLU , question, viewQue});
-        
         setIsDisabled(false);
     };
 
     const fetchLUs = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedChapter = event.target.value;
-        onUpdateState({ grade, subject, chapter: selectedChapter, lu, question, viewQue });
+        onUpdateState({ grade, subject, chapter: selectedChapter, lu, bloom, question, viewQue });
+    };
+
+    const setBloomLevel = (event: any) => {
+        const selectedBloom = event.target.value;
+        console.log("Selected Blooms Level: ", selectedBloom);
+        onUpdateState({ grade, subject, chapter, lu, bloom: selectedBloom, question: questions, viewQue: viewQues });
+        
     };
 
     const handleSubmit = () => {
+        if(questions.length === 0 && isDisabled === false){
+        setLoading(true);
+        }
+        setTimeout(()=> {}, 2000);
         getLUQuestions(lu)
             .then((data: any) => {
                 console.log("Questions: ", data);
+                setLoading(false);
                 if (data.data.length === 0 && lu != "") {
                     handleShow();
                     setIsGenerateDisabled(false);
                     setQues([]);
                     setviewQues([]);
-                    onUpdateState({ grade, subject, chapter, lu, question: questions, viewQue: viewQues });
+                    onUpdateState({ grade, subject, chapter, lu, bloom, question: questions, viewQue: viewQues });
                 } else {
-
                     setQues(data.data);
-                    onUpdateState({ grade, subject, chapter, lu, question: data.data, viewQue });
+                    onUpdateState({ grade, subject, chapter, lu, bloom, question: data.data, viewQue });
                     let temp1 = [];
                     for (let que_det of data.data) {
                         temp1.push({ 'question': que_det.Question });
                     }
                     // temp1.push({ 'question': data.data[0].Question })
                     setviewQues(temp1);
-                    onUpdateState({ grade, subject, chapter, lu, question, viewQue: viewQues });
+                    onUpdateState({ grade, subject, chapter, lu, bloom, question, viewQue: viewQues });
                     console.log("Questions:", viewQues);
                 }
             })
@@ -244,14 +263,14 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
                 console.log("Generated Ques ==============> ", data.data);
 
                 setQues(data.data);
-                onUpdateState({ grade, subject, chapter, lu, question: data.data, viewQue });
+                onUpdateState({ grade, subject, chapter, lu, bloom, question: data.data, viewQue });
                 let temp1 = [];
                 for (let que_det of data.data) {
                     temp1.push({ 'question': que_det.Question });
                 }
                 // temp1.push({ 'question': data.data[0].Question })
                 setviewQues(temp1);
-                onUpdateState({ grade, subject, chapter, lu, question, viewQue: viewQues });
+                onUpdateState({ grade, subject, chapter, lu, bloom, question, viewQue: viewQues });
                 console.log("Questions:", viewQues);
             }
         ).catch( error => {
@@ -274,46 +293,55 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
         <div className="row">
             <div className="col-md-12 mt-5">
                 <h2 className="text-center">
-                    Please select
+                    Please select 
                     <span className="fw-bold"> Grade</span>,
-                    <span className="fw-bold"> Subject</span>, and
-                    <span className="fw-bold"> Chapter </span>
-                    to review generated MCQs
+                    <span className="fw-bold"> Subject</span>,
+                    <span className="fw-bold"> Chapter </span>, and
+                    other details
+                    to generate MCQs
                 </h2>
             </div>
 
             <div className="row">
                 <div className="col-md-2"></div>
                 <div className="col-md-8 d-flex justify-content-center py-2 mt-4">
-                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '400px' }} value={grade} onChange={fetchSubjects}>
+                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '150px' }} value={grade} onChange={fetchSubjects}>
                         <option value="" disabled >Pick a grade</option>
                         {grades.map((grade, index) => (
                             <option key={index}>{grade}</option>
                         ))}
                     </select>
 
-                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '400px' }} value={subject} onChange={fetchChapters}>
+                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '260px' }} value={subject} onChange={fetchChapters}>
                         <option value="" disabled >Pick one of the given subjects</option>
                         {subjects.map((subject, index) => (
                             <option key={index}>{subject}</option>
                         ))}
                     </select>
 
-                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '400px' }} value={chapter} onChange={fetchLUs}>
+                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '252px' }} value={chapter} onChange={fetchLUs}>
                         <option value="" disabled >Pick from the given chapters</option>
                         {chapters.map((chapter, index) => (
                             <option key={index}>{chapter}</option>
                         ))}
                     </select>
 
-                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '400px' }} value={lu} onChange={setLUID}>
-                        <option value="" disabled>Pick from the given LUs</option>
+                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '235px' }} value={lu} onChange={setLUID}>
+                        <option value="" disabled>Pick from the given Topics</option>
                         {lus.map((lu, index) => (
                             <option key={index} value={lu.id}>
                                 {lu.id} &nbsp; {lu.name}
                             </option>
                         ))}
                     </select>
+
+                    <select className="btn dropdown-toggle border border-primary mx-3" style={{ maxWidth: '300px' }} value={bloom} onChange={setBloomLevel}>
+                        <option value="" disabled >Pick from the given Bloom's Levels</option>
+                        {blooms.map((bloom, index) => (
+                            <option key={index} value={bloom}>{bloom}</option>
+                        ))}
+                    </select>
+                    
                 </div>
                 <div className="col-md-2"></div>
             </div>
@@ -352,7 +380,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
                     {viewQues.map((question, index) => (
                         <div className="row" key={index}>
                             <div className="col-md-12 my-2">
-                                Question Title: &nbsp; {question.question} &nbsp; &nbsp;
+                                Que {index + 1}: &nbsp; {question.question} &nbsp; &nbsp;
                                 <button className="btn btn-primary btn-sm float-end" value={index} onClick={() => viewQuestion(index)}>
                                     VIEW
                                 </button>
