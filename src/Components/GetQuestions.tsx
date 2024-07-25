@@ -226,7 +226,7 @@ const GetQuesPage: React.FC<Props> = ({ grade, subject, chapter, lu, question, v
     const generateQuestions = () => {
         //pass
         setLoading(true);
-        let selected_lu = "";
+        let selected_lu = {};
         for(let l of lus){
             if (l.id === lu){
                 selected_lu = l
