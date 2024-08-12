@@ -1,47 +1,62 @@
 import 'bootstrap/dist/css/bootstrap.css';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
 import React, { useState, useEffect } from 'react';
-import { getGrades, getSubjects, getChapters, getLUs, getLUQuestions } from './httpservice';
-import { ClipLoader, SyncLoader } from 'react-spinners';
+import { getQuestionWithId } from './httpservice';
 import ViewPage from './Components/ViewQuestion';
 import GetQuesPage from './Components/GetQuestions';
-import { createTypeReferenceDirectiveResolutionCache } from 'typescript';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
 
 const App: React.FC = () => {
-
   const [clickedOnView, setClickedOnView] = useState(false);
-  const [chosenQues, setChosenQues] = useState<{}>({});
+  const [chosenQues, setChosenQues] = useState<{
+    question: {
+      Blooms_Level: string;
+      Question: any;
+      Correct_Answer: any;
+      Explanation: any;
+      option1: any;
+      dr1: any;
+      option2: any;
+      dr2: any;
+      option3: any;
+      dr3: any;
+    }
+  }>({
+    question: {
+      Blooms_Level: "",
+      Question: [],
+      Correct_Answer: [],
+      Explanation: [],
+      option1: [],
+      dr1: [],
+      option2: [],
+      dr2: [],
+      option3: [],
+      dr3: [],
+    }
+  });
   const [grade, setGrade] = useState('');
   const [subject, setSubject] = useState('');
   const [chapter, setChapter] = useState('');
   const [lu, setLU] = useState('');
   const [bloom, setBloom] = useState('');
-  // const [blooms, setBlooms] = useState<string[]>(["Remember", "Understand", "Apply", "Analyse"]);
-  const [question, setQuestion] = useState<
-    {
-      Blooms_Level: string;
-      Question: string;
-      Correct_Answer: string;
-      Explanation: string;
-      option1: string;
-      dr1: string;
-      option2: string;
-      dr2: string;
-      option3: string;
-      dr3: string;
-    }[]>([]);
-
-  const [viewQue, setViewQue] = useState<{ question: string; }[]>([]);
-
-
-
-  // Add state for grade, subject ,chapter, LU
-  // 2 way binding for grade subject, chapter and LU
+  const [question, setQuestion] = useState<any[]>([]);
+  const [viewQue, setViewQue] = useState<any[]>([]);
 
   useEffect(() => {
+    setQuestion(question);
+    let tempViewQues = [];
+    for (let que of question) {
+      if (que.Blooms_Level === bloom) {
+        tempViewQues.push({ question: que.Question });
+      }
+    }
+    setViewQue(tempViewQues);
+  }, [question]);
 
-  }, [chosenQues]);
+  useEffect(() => {
+    console.log("Updated question in App:", question);
+  }, [question]);
 
   const handleChildUpdate = (newState: any) => {
     setGrade(newState.grade);
@@ -51,27 +66,40 @@ const App: React.FC = () => {
     setBloom(newState.bloom);
     setQuestion(newState.question);
     setViewQue(newState.viewQue);
-    console.log("In app page ...................", viewQue);
-    console.log("In app page ==================>", question);
-    // Update parent component state
   };
 
-  const handleChildUpdate2 = (value: boolean) => {
+  const handleChildUpdate3 = (value: boolean, quest: any) => {
     setClickedOnView(value);
-    console.log("In app file........................................", clickedOnView, chosenQues) // Update parent component state
-  };
-
-  const handleChildUpdate3 = (value: any, quest: any) => {
-    console.log("IN app file ===============================", value, quest);
-    setClickedOnView(value);
-
     setChosenQues(quest);
-    console.log("In app file........................................", clickedOnView, chosenQues)
-  }
+  };
 
-  const handleChildQuestionsUpdate = (newQuestions: any) => {
-    setQuestion(newQuestions);
-};
+  const getQuesWithID = (e: any) => {
+    e.preventDefault();
+    const formDet = new FormData(e.target);
+    const formDetails = Object.fromEntries(formDet.entries());
+
+    getQuestionWithId(formDetails.qid as string)
+      .then((data: any) => {
+        if (data.data.length === 0) {
+          const MySwal = withReactContent(Swal)
+          MySwal.fire(<p>No Question Found in the DataBase.</p>)
+        }
+        else {
+          setQuestion(data.data);
+        }
+      })
+      .catch((error: any) => {
+        console.error("Error fetching question:", error);
+      });
+  };
+
+  const [isChecked, setIsChecked] = useState(false);
+
+  // Function to handle the switch change
+  const handleChange = (event: any) => {
+    setIsChecked(event.target.checked);
+  };
+
 
 
   return (
@@ -95,37 +123,63 @@ const App: React.FC = () => {
                     <a className="nav-link active fw-bolder" aria-current="page" href="#" style={{ fontSize: '22px' }}>AcadAlly</a>
                   </li>
                 </ul>
-                <form className="d-flex" role="search">
-                  <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-                  <button className="btn btn-outline-success" type="submit">
-                    Search
-                  </button>
-                </form>
+
+                {/* <div className="form-check form-switch">
+                  <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
+                    <label className="form-check-label" htmlFor="flexSwitchCheckDefault"></label>
+                </div> */}
+                {clickedOnView === false ? (
+                  <div>
+
+                    <span className="form-check form-switch">
+                      <input
+                        type="checkbox"
+                        role='switch'
+                        style={{paddingTop : '22px', width: '43px',}}
+                        className="mt-2 mx-3 form-check-input"
+                        id="flexSwitchCheckDefault"
+                        checked={isChecked}
+                        onChange={handleChange}
+                      />
+
+
+                      <form name="SearchWithQID" className="d-flex" role="search" method='post' onSubmit={getQuesWithID}>
+                        <input id='qid' name='qid' className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+                        <button className="btn btn-outline-success" type="submit" disabled={!isChecked}>
+                          Search
+                        </button>
+                      </form>
+                    </span>
+                  </div>
+
+                ) : null}
               </div>
             </div>
           </nav>
         </div>
 
         <div className="col-lg-12">
-        {clickedOnView ? (
-          <div>
-            <ViewPage quest={chosenQues} onUpdateClickedOnView={handleChildUpdate2}></ViewPage>
-          </div>
-        ) : (
-          <div className="row">
-            <GetQuesPage grade={grade}
-              subject={subject}
-              chapter={chapter}
-              lu={lu}
-              bloom={bloom}
-              question={question}
-              viewQue={viewQue}
-              onUpdateState={handleChildUpdate}
-              onUpdateQuestions={handleChildQuestionsUpdate}
-              onUpdateClickedOnView={handleChildUpdate3}></GetQuesPage>
-          </div>
-        )
-        }
+          {clickedOnView ? (
+            <div className='row'>
+              <ViewPage quest={chosenQues} onUpdateClickedOnView={setClickedOnView} onUpdateState={setChosenQues}></ViewPage>
+            </div>
+          ) : (
+            <div className="row">
+              <GetQuesPage
+                showIt={isChecked}
+                grade={grade}
+                subject={subject}
+                chapter={chapter}
+                lu={lu}
+                bloom={bloom}
+                question={question}
+                viewQue={viewQue}
+                onUpdateState={handleChildUpdate}
+                onUpdateQuestions={setQuestion}
+                onUpdateClickedOnView={handleChildUpdate3}></GetQuesPage>
+            </div>
+          )
+          }
         </div>
 
 
