@@ -546,7 +546,7 @@ const ViewPage: React.FC<Props> = ({
                 <span className="ms-2 p-2" style={{ border: 'solid black 1px' }}>
                   {(quest.dr2 ? quest.dr2 : quest.question.dr2).map((dr_parts: any, index: any) => {
                     if (dr_parts.type === "text") {
-                      return <input className="border-0 shadow-0 " key={index} name={index.toString() + "DR1text"} id={index.toString() + "DR1text"} style={{ width: `${(dr_parts.content.length + 2) * 7}px` }} onChange={() => {
+                      return <input className="border-0 shadow-0 " key={index} name={index.toString() + "DR2text"} id={index.toString() + "DR2text"} style={{ width: `${(dr_parts.content.length + 2) * 7}px` }} onChange={() => {
                         setSaveDisabled(true);
                       }} defaultValue={dr_parts.content}></input>
                     }
